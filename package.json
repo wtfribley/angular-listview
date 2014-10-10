@@ -22,6 +22,7 @@
   "devDependencies": {
     "chai": "^1.9.2",
     "gulp": "^3.8.8",
+    "gulp-jscs": "^1.1.2",
     "gulp-jshint": "^1.8.5",
     "gulp-karma": "0.0.4",
     "gulp-rename": "^1.2.0",

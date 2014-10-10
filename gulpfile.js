@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
+var jscs = require('gulp-jscs');
 var karma = require('gulp-karma');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
@@ -17,7 +18,8 @@ var paths = {
 gulp.task('lint', function() {
   return gulp.src(paths.src)
     .pipe(jshint())
-    .pipe(jshint.reporter('jshint-stylish'));
+    .pipe(jshint.reporter('jshint-stylish'))
+    .pipe(jscs());
 });
 
 gulp.task('test', function() {

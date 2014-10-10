@@ -1,7 +1,7 @@
 angular-listview
 ================
 
-### Simple, flexible Angular list view with iOS-style edit/remove header.
+#### Simple, flexible Angular list view with iOS-style edit/remove header.
 
 ### Development
 
