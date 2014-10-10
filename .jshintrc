@@ -1,0 +1,23 @@
+{
+  // enforcing
+
+  "camelcase": true,
+  "freeze": true,
+  "indent": 2,
+  "newcap": true,
+  "noempty": true,
+  "nonbsp": true,
+  "nonew": true,
+  "undef": true,
+  "unused": true,
+  "maxlen": 80,
+  "strict": true,
+
+  // relaxing
+
+  "curly": false, // allow single-line if statements like `if (err) return done(err);`
+  "expr": true, // allow things like `x || (x = 8)`
+  "eqnull": true, // allow `x == null` as a shortcut for `(x === null || x === void 0)`
+  "funcscope": true,
+  "predef": ["angular"]
+}
