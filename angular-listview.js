@@ -6,7 +6,7 @@
    */
   var ListViewMinErr = angular.$$minErr('listview');
 
-  angular.module('listview', [])
+  angular.module('listview', ['ngAnimate'])
 
 .factory('listViewParser', ['$parse', function($parse) {
 
@@ -49,7 +49,7 @@
   this.selectElements = [];
   this.parserResult = null;
 
-  this.editModeHandlers = [];
+  this.$element = null;
   this.inEditMode = false;
 
   /**
@@ -130,34 +130,13 @@
    * mode handlers, passing a boolean (true == edit mode).
    */
   this.toggleEditMode = function toggleEditMode() {
-    this.inEditMode = !this.inEditMode;
+    this.editMode = !this.editMode;
 
-    for (var i = 0, len = this.editModeHandlers.length; i < len; i++) {
-      this.editModeHandlers[i](this.inEditMode);
-    }
+    var method = (this.editMode)
+      ? 'addClass'
+      : 'removeClass';
 
-    return this.inEditMode;
-  };
-
-  /**
-   * @ngdoc method
-   * @name listView.ListViewCtrl#registerEditModeHandlers
-   * @kind function
-   *
-   * @description
-   * The listItemEdit directive registers a handler, to be called when the list
-   * enters / exits edit mode.
-   *
-   * @param {function()} handler Edit mode handler (provided by listItemEdit).
-   * @returns {function()} Call this function to deregister the handler.
-   */
-  this.registerEditModeHandler = function registerEditModeHandler(handler) {
-    var handlers = this.editModeHandlers;
-
-    handlers.push(handler);
-    return function() {
-      handlers.splice(handlers.indexOf(handler), 1);
-    };
+    $animate[method](this.$element, 'edit-mode');
   };
 
   /**
@@ -239,6 +218,10 @@
         // for things like removing items, the controller needs to have access
         // to the parsed result of the `attrs.list` expression.
         ctrl.parserResult = parser.parse(attrs.list);
+
+        // the controller needs a reference to the $element to do things like
+        // enter/exit edit mode.
+        ctrl.$element = $element;
       };
     }
   };
@@ -298,9 +281,6 @@
         var handler = function() { return true; };
         var timer = null;
 
-        scope.$selected = false;
-        if (ctrl.selectMode == 'active') scope.$active = false;
-
         // register the scope with the controller, allowing it to control
         // selection across the whole list.
         var deregisterElement = ctrl.registerSelectElement($element);
@@ -336,29 +316,12 @@
   };
 }])
 
-.directive('listItemEdit', ['$animate', '$parse', function($animate, $parse) {
+.directive('listItemEdit', ['$parse', function($parse) {
   return {
     restrict: 'A',
     require: '^listView',
     link: function(scope, $element, attrs, ctrl) {
 
-      // Show / Hide
-      // -----------
-      //
-      // the controller arbitrates show/hide behavior.
-      var editModeHandler = function(show) {
-        $animate[show ? 'removeClass' : 'addClass']($element, 'ng-hide');
-      };
-
-      var deregister = ctrl.registerEditModeHandler(editModeHandler);
-      scope.$on('$destroy', deregister);
-
-      // the edit element begins hidden.
-      editModeHandler(false);
-
-      // Edit
-      // ----
-      //
       // a particular event may be specified to trigger the edit behavior.
       var editEvent = attrs.editOn || 'click';
 
