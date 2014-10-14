@@ -8,10 +8,46 @@
 
   angular.module('listview', [])
 
+.factory('listViewParser', ['$parse', function($parse) {
+
+  // jscs:disable maximumLineLength
+  var LIST_REGEXP = /^\s*([\s\S]+?)\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?\s*$/;
+  var ITEM_REGEXP = /^(?:([\$\w]+)|\(([\$\w]+)\s*,\s*([\$\w]+)\))$/;
+  // jscs:enable
+
+  return {
+    parse: function(expression) {
+      var match = expression.match(LIST_REGEXP);
+
+      if (!match) {
+        throw new ListViewMinErr('iexp',
+          "Expected expression in form of '_item_ in _collection_ (track by " +
+          "_id_)?' but got '{0}'.", expression);
+      }
+
+      var collectionIdentifier = match[2];
+      var lhs = match[1];
+      match = lhs.match(ITEM_REGEXP);
+
+      if (!match) {
+        throw new ListViewMinErr('iidexp', "'_item_' in '_item_ in " +
+          "_collection_' should be an identifier or '(_key_, _value_)' " +
+          "expression, but got '{0}'.", lhs);
+      }
+
+      return {
+        collectionMapper: $parse(collectionIdentifier),
+        keyIdentifier: match[2] || '$index'
+      };
+    }
+  };
+}])
+
 .controller('ListViewCtrl', function() {
 
   this.selectMode = 'none';
   this.selectScopes = [];
+  this.parserResult = null;
 
   /**
    * @ngdoc method
@@ -41,9 +77,44 @@
     scope.$selected = true;
     if (selectMode == 'active') scope.$active = true;
   };
+
+  /**
+   * @ngdoc method
+   * @name listView.ListViewCtrl#remove
+   * @kind function
+   *
+   * @description
+   * Return an event handler which will remove the list item (as determined by
+   * the results of a parsed ng-repeat expression) from the given `scope`.
+   *
+   * The handler will emit a `listview.remove` event, passing the item and the
+   * collection from which it was removed.
+   *
+   * @param {obj} scope The scope to containing the list item to remove.
+   * @returns {function()} An event handler.
+   */
+  this.remove = function remove(scope) {
+    var pr = this.parserResult;
+
+    return function() {
+      var collection = pr.collectionMapper(scope);
+      var key = scope.$eval(pr.keyIdentifier);
+      var item;
+
+      if (Array.isArray(collection)) {
+        item = collection.splice(key, 1)[0];
+      }
+      else {
+        item = collection[key];
+        delete collection[key];
+      }
+
+      scope.$emit('listview.remove', item, collection);
+    };
+  };
 })
 
-.directive('listView', function() {
+.directive('listView', ['listViewParser', function(parser) {
 
   var SELECT_MODES = {
     single: 'single',
@@ -55,13 +126,34 @@
   return {
     restrict: 'EA',
     controller: 'ListViewCtrl',
-    link: function(scope, $element, attrs, ctrl) {
+    compile: function($element, attrs) {
 
-      // the controller will arbitrate selection - it needs to know the mode.
-      ctrl.selectMode = SELECT_MODES[attrs.selectMode] || 'none';
+      // iOS-style edit/add header (TODO this part).
+      var $header = angular.element('<div class="listview-header">');
+      $header.append('<button list-edit>Edit</button>');
+      $header.append('<button list-add>Add</button>');
+
+      console.log($element.find('list-item'));
+
+      // let's support ng-repeat expressions without re-implementing ng-repeat.
+      var $repeat = angular.element('<div ng-repeat="' + attrs.list + '">');
+      $repeat.append($element.contents());
+
+      $element.append($header);
+      $element.append($repeat);
+
+      return function(scope, $element, attrs, ctrl) {
+
+        // the controller will arbitrate selection - it needs to know the mode.
+        ctrl.selectMode = SELECT_MODES[attrs.selectMode] || 'none';
+
+        // for things like removing items, the controller needs to have access
+        // to the parsed result of the `attrs.list` expression.
+        ctrl.parserResult = parser.parse(attrs.list);
+      };
     }
   };
-})
+}])
 
 .directive('listEdit', function() {
   return {
@@ -106,7 +198,7 @@
         // selection across the whole list.
         ctrl.selectScopes.push(scope);
 
-        // the select function can return an explicit false to prevent selection.
+        // the select function can return false to prevent selection.
         if (attrs.selectFn) handler = $parse(attrs.selectFn);
 
         // to provide compatibility with the other directives, the click handler
@@ -141,14 +233,31 @@
   };
 }])
 
-.directive('listItemEdit', function() {
+.directive('listItemEdit', ['$parse', function($parse) {
   return {
-    restrict: 'EA',
-    require: ['^listView', '^listItem'],
+    restrict: 'A',
+    require: '^listView',
     link: function(scope, $element, attrs, ctrl) {
-      var listViewCtrl = ctrl[0];
+
+      // a particular event may be specified to trigger the edit behavior.
+      var editEvent = attrs.editOn || 'click';
+
+      // a handler may be an in-scope function or "delete"/"remove".
+      var handler = attrs.listItemEdit || angular.noop;
+
+      if (handler == 'delete' || handler == 'remove') {
+        handler = ctrl.remove(scope);
+      }
+      else if (typeof handler == 'string') {
+        handler = $parse(handler);
+      }
+
+      $element.on(editEvent, function(event) {
+        event.stopPropagation();
+        scope.$apply(function() { handler(scope, {$event: event}); });
+      });
     }
   };
-});
+}]);
 
 })(angular);
