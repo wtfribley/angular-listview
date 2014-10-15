@@ -1,12 +1,14 @@
 describe('controller: ListViewCtrl', function() {
   var ctrl;
   var elements = [];
+  var scope;
 
   beforeEach(module('listview'));
 
-  beforeEach(inject(function(_$controller_) {
+  beforeEach(inject(function(_$controller_, _$rootScope_) {
     ctrl = _$controller_('ListViewCtrl');
     elements = [];
+    scope = _$rootScope_.$new();
 
     for (var i = 0; i < 3; i++) elements.push(angular.elements('<div>'));
   }));
@@ -189,11 +191,89 @@ describe('controller: ListViewCtrl', function() {
       expect(ctrl.remove).to.be.a('function');
     });
 
-    it('should expose public property **ListViewCtrl#parserResult**',
+    it('should expose public property **ListViewCtrl#expression**',
     function() {
-      expect(ctrl.parserResult).to.equal(null);
+      expect(ctrl.parserResult).to.equal('');
     });
 
-    //TODO: need parserResult + scope... OR rethink add/remove.
+    describe('method: add', function() {
+
+      it('should push an item onto an array in the given scope', function() {
+        
+        ctrl.expression = 'item in collection';
+        scope.collection = ['a','b','c','d'];
+
+        ctrl.add('e', scope);
+
+        expect(scope.collection).to.have.length(5);
+        expect(scope.collection[4]).to.equal('e');
+      });
+
+      it('should add an item to an object in the given scope', function() {
+        
+        ctrl.expression = 'item in collection';
+        scope.collection = {a: 'A', b: 'B', c: 'C', d: 'D'};
+
+        ctrl.add('E', 'e', scope);
+
+        expect(scope.collection.e).to.equal('E');
+      });
+
+      it('should throw when collection is an object and no key is given',
+      function() {
+        
+        ctrl.expression = 'item in collection';
+        scope.collection = {a: 'A', b: 'B', c: 'C', d: 'D'};
+
+        expect(ctrl.add.bind(ctrl, 'E', scope)).to.throw(/areq/);
+      });
+    });
+
+    describe('method: remove', function() {
+
+      it('should remove an item from an array in the given scope', function() {
+        
+        ctrl.expression = 'item in collection';
+        scope.collection = [{name: 'a'},{name: 'b'},{name: 'c'},{name:'d'}];
+
+        var itemScope = scope.$new();
+        itemScope.item = scope.collection[2];
+
+        ctrl.remove(itemScope);
+
+        expect(scope.collection).to.have.length(3);
+        scope.collection.forEach(function(item) {
+          expect(item.name).to.not.equal('c');
+        });
+      });
+
+      it('should remove an item from an object in the given scope', function() {
+        
+        ctrl.expression = '(key, val) in collection';
+        scope.collection = {a: 'A', b: 'B', c: 'C', d: 'D'};
+
+        var itemScope = scope.$new();
+        itemScope.key = 'c';
+        itemScope.val = scope.collection.c;
+
+        ctrl.remove(itemScope);
+
+        expect(scope.collection.c).to.not.exist;
+      });
+
+      it('should throw when collection is an object and no key can be parsed',
+      function() {
+
+        ctrl.expression = '(key, val) in collection';
+        scope.collection = {a: 'A', b: 'B', c: 'C', d: 'D'};
+
+        var itemScope = scope.$new();
+        itemScope.val = scope.collection.c;
+
+        expect(ctrl.remove.bind(ctrl, itemScope)).to.throw(/key/);
+      });
+    });
   });
 });
+
+// TODO: implement!

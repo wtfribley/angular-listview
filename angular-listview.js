@@ -116,7 +116,8 @@
 
     selectElements.push($element);
     return function() {
-      selectElements.splice(selectElements.indexOf($element), 1);
+      var index = selectElements.indexOf($element);
+      if (index > -1) selectElements.splice(index, 1);
     };
   };
 
@@ -151,6 +152,23 @@
     }
   };
 
+  this.add = function add(item, key, scope) {
+    if (!parse) parse = listViewParser(this.expression);
+    if (scope === void 0) {
+      scope = key;
+      key = null;
+    }
+
+    var collection = parse.collection(scope);
+
+    if (Array.isArray(collection)) collection.push(item);
+    else if (key) collection[key] = item;
+    else {
+      throw new ListViewMinErr('areq', "Argument 'key' is required when list " +
+        'is an object');
+    }
+  }
+
   /**
    * @ngdoc method
    * @name listView.ListViewCtrl#remove
@@ -184,6 +202,26 @@
 
       scope.$emit('listview.remove', item, collection);
     };
+  };
+
+  this.remove = function remove(scope) {
+    if (!parse) parse = listViewParser(this.expression);
+
+    var collection = parse.collection(scope);
+    var key = parse.key(scope);
+    var item = (key)
+      ? collection[key]
+      : parse.item(scope);
+
+    if (Array.isArray(collection)) {
+      collection.splice(collection.indexOf(item), 1);
+    }
+    else if (key) delete collection[key];
+    else {
+      throw new ListViewMinErr();
+    }
+
+    scope.$emit('listview.remove', item, collection);
   };
 }])
 
@@ -257,10 +295,12 @@
       $element.on(editEvent, function(event) {
         event.stopPropagation();
 
-        if (ctrl.inEditMode) return ctrl.toggleEditMode();
+        var editMode = ctrl.$element.hasClass('edit-mode');
 
-        $q.when(handler(scope, {$event: event})).then(function(editMode) {
-          if (editMode !== false) ctrl.toggleEditMode();
+        $q.when(
+          handler(scope, {$event: event, $editMode: editMode})
+        ).then(function(toggle) {
+          if (toggle !== false) ctrl.toggleEditMode();
         });
       });
     }
@@ -286,8 +326,7 @@
 
         // the add handler should resolve with the item to add.
         $q.when(handler(scope, {$event: event})).then(function(item, key) {
-          console.log(item);
-          if (item) ctrl.add(item, scope, key);
+          if (item) ctrl.add(item, key, scope);
         });
       });
     }
