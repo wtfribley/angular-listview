@@ -16,6 +16,7 @@ module.exports = function(config) {
     // load our source and test files, they will be loaded in order.
     files: [
         "bower_components/angular/angular.js",
+        "bower_components/angular-animate/angular-animate.js",
         "bower_components/angular-mocks/angular-mocks.js",
         "angular-listview.js",
         "src/*.js",

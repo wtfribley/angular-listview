@@ -24,7 +24,8 @@
       
       .list-item {
         position: relative;
-        margin: 10px 0;
+        margin: 0;
+        border-bottom: 1px solid #444;
       }
       .list-item.selected { border: 1px solid #4d4d4d; }
 
@@ -40,7 +41,7 @@
         height: 112px;
         color: #fff;
         font-family: helvetica, sans-serif;
-        background-color: #8d8d8d;
+        background-color: #222;
         transition: width 300ms ease-in-out;
       }
 
@@ -59,10 +60,10 @@
     <list-view class="list-view" list="item in nodes" select-mode="single">
       <div>
         <button list-edit>Edit</button>
-        <button list-add>Add</button>
+        <button list-add="addFn()">Add</button>
       </div>
       <div list-item class="list-item clearfix">
-        <div class="item-edit" list-item-edit="remove"></div>
+        <div class="item-edit" list-item-edit="remove">X</div>
         <div class="item-content"><pre>{{item | json}}</pre></div>
       </div>
     </list-view>
@@ -88,9 +89,9 @@
 
         $scope.filters = {title: 'a'};
 
-        $timeout(function() {
-          $scope.nodes.push({title: 'C', type: 'type2'});
-        }, 1000);
+        $scope.addFn = function addFn() {
+          return {title: 'C', type: 'type2'};
+        };
 
         $scope.$on('listview.remove', function(evt, item, collection) {
           console.log(item);

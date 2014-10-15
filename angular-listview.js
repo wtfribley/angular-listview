@@ -139,6 +139,18 @@
     $animate[method](this.$element, 'edit-mode');
   };
 
+  this.add = function add(item, scope, key) {
+    var pr = this.parserResult;
+    var collection = pr.collectionMapper(scope);
+
+    if (Array.isArray(collection)) collection.push(item);
+    else if (key) collection[key] = item;
+    else {
+      throw new ListViewMinErr('areq', "Argument 'key' is required when list " +
+        'is an object');
+    }
+  };
+
   /**
    * @ngdoc method
    * @name listView.ListViewCtrl#remove
@@ -255,15 +267,32 @@
   };
 }])
 
-.directive('listAdd', function() {
+.directive('listAdd', ['$parse', '$q', function($parse, $q) {
   return {
     restrict: 'A',
     require: '^listView',
     link: function(scope, $element, attrs, ctrl) {
 
+      // this directive requires a handler - behavior to add an item is too
+      // specific for some default function.
+      if (!attrs.listAdd) return;
+      
+      // a particular event may be specified to trigger the add function.
+      var addEvent = attrs.addOn || 'click';
+      var handler = $parse(attrs.listAdd);
+
+      $element.on(addEvent, function(event) {
+        event.stopPropagation();
+
+        // the add handler should resolve with the item to add.
+        $q.when(handler(scope, {$event: event})).then(function(item, key) {
+          console.log(item);
+          if (item) ctrl.add(item, scope, key);
+        });
+      });
     }
   };
-})
+}])
 
 .directive('listItem',
 ['$parse', '$q', '$timeout', function($parse, $q, $timeout) {
