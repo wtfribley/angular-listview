@@ -9,14 +9,15 @@ angular-listview
 
 ##### Do you want `ngRepeat` + helper directives to CRUD your lists?
 
-##### Well. Aren't you in luck.
+Well. Aren't you in luck.
 
 `npm install angular-listview` OR `bower install angular-listview`
 
 ### Usage
 
-Use [bower]() or [npm]() to download `angular-listview`. Then add a script tag
-or just freakin' [browserify]() all the things!
+Use [bower](http://bower.io/) or [npm](https://www.npmjs.org/) to download
+`angular-listview`. Then add a script tag or just freakin'
+[browserify](http://browserify.org/) all the things!
 
 Then add `listview` to your app's dependencies.
 
@@ -31,7 +32,7 @@ Now you're ready to make lists on lists.
   <div>
     <h1>This could be a header, title, whatever!</h1>
     <button list-edit-toggle>You can toggle "$editMode"</button>
-    <button list-add="someFunction()">You can add things too!</button>
+    <button list-add="addAFoo()">You can add things too!</button>
   </div>
   <list-item>
     <h3>This will be repeated over and over and over!</h3>
@@ -54,8 +55,8 @@ and when.
 
   - **none** prevents any selection at all.
   - **single** only one `list-item` may be selected at a time.
-  - **active** just like single, but many `list-item`s may be active at once.
-  - **multi** any number of `list-item`s may be selected at a time.
+  - **active** just like single, but many `list-items` may be active at once.
+  - **multi** any number of `list-items` may be selected at a time.
 
 The default mode is **none** - but you can change that like so:
 
@@ -75,7 +76,7 @@ triggering event if you want:
 You can also give each `list-item` a select handler using the `select-if`
 attribute. This is an expression which will be evaluated each time selection is
 triggered. If its result is `false` - or a promise which is rejected or resolves
-to `false` - selection is prevented.
+to `false` - the selection is prevented.
 
 ```html
 <list-view list="foo in collection" select-mode="single">
@@ -105,13 +106,13 @@ a list by clicking or tapping or key-downing... `list-add` makes that easy.
 ```
 
 `list-add` lets you give an expression which should evaluate to the new item to
-be added to the list. It supports expression that return promises, so you can
+be added to the list. It supports expressions which return promises, so you can
 wait for user input!
 
 Just like `list-item`, you can change the event that triggers the addition using
 the `add-on` attribute.
 
-### Editing Mode 
+### Edit Mode 
 
 When doing destructive things with your lists, sometimes you want to make it a
 two-step process. This is why `list-view` supports an "edit mode" - it lets you
