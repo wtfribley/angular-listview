@@ -4,7 +4,7 @@
   /**
    * @typedef {Error} ListViewMinErr
    */
-  var ListViewMinErr = angular.$$minErr('listview');
+  var listViewMinErr = angular.$$minErr('listview');
 
   angular.module('listview', ['ngAnimate'])
 
@@ -20,7 +20,7 @@
       var match = expression.match(LIST_REGEXP);
 
       if (!match) {
-        throw new ListViewMinErr('iexp',
+        throw listViewMinErr('iexp',
           "Expected expression in form of '_item_ in _collection_ (track by " +
           "_id_)?' but got '{0}'.", expression);
       }
@@ -30,7 +30,7 @@
       match = lhs.match(ITEM_REGEXP);
 
       if (!match) {
-        throw new ListViewMinErr('iidexp', "'_item_' in '_item_ in " +
+        throw listViewMinErr('iidexp', "'_item_' in '_item_ in " +
           "_collection_' should be an identifier or '(_key_, _value_)' " +
           "expression, but got '{0}'.", lhs);
       }
@@ -84,7 +84,7 @@
   var selectElements = [];
   var editMode = false;
   var parse;
-  
+
   /**
    * @ngdoc method
    * @name listview.ListViewCtrl#registerSelectElement
@@ -99,7 +99,7 @@
   this.registerSelectElement = function registerSelectElement($element) {
 
     selectElements.push($element);
-    
+
     return function() {
       var index = selectElements.indexOf($element);
       if (index > -1) selectElements.splice(index, 1);
@@ -196,7 +196,7 @@
     if (Array.isArray(collection)) collection.push(item);
     else if (key) collection[key] = item;
     else {
-      throw ListViewMinErr('nokey', "Argument 'key' is required when list " +
+      throw listViewMinErr('nokey', "Argument 'key' is required when list " +
         'is an object');
     }
   };
@@ -231,7 +231,7 @@
     }
     else if (key) delete collection[key];
     else {
-      throw ListViewMinErr('nokey', 'The expression used to iterate over an ' +
+      throw listViewMinErr('nokey', 'The expression used to iterate over an ' +
       "object must specify (_key_, _value_), but got '{0}'", this.expression);
     }
   };
@@ -253,7 +253,7 @@
  * @param {string} selectMode See {@link listview.ListViewCtrl#selectMode}
  */
 .directive('listView', function() {
-  
+
   var SELECT_MODES = {
     single: 'single',
     multi: 'multi',
@@ -383,7 +383,7 @@
           scope.$eval(handler, {$event: event})
         ).then(function(item) {
           if (!item) return;
-          
+
           var key = item.$key;
           delete item.$key;
 
@@ -455,7 +455,7 @@
 
         if (callFunction) {
           if ($element.hasClass('selected')) return ctrl.deselect($element);
-          
+
           $q.when(scope.$eval(handler, {$event: event})).then(function(select) {
             if (select === false) return;
             ctrl.select($element);
