@@ -168,12 +168,17 @@ describe('controller: ListViewCtrl', function() {
     
     it('should toggle the "list-view-edit" class on ListViewCtrl#$element',
     function() {
+      var editMode = false;
       ctrl.$element = elements[0];
       
       expect(ctrl.$element.hasClass('list-view-edit')).to.be.false;
-      ctrl.toggleEditMode();
+      
+      editMode = ctrl.toggleEditMode();
+      expect(editMode).to.be.true;
       expect(ctrl.$element.hasClass('list-view-edit')).to.be.true;
-      ctrl.toggleEditMode();
+      
+      editMode = ctrl.toggleEditMode();
+      expect(editMode).to.be.false;
       expect(ctrl.$element.hasClass('list-view-edit')).to.be.false;
     });
   });

@@ -8,6 +8,7 @@
 
   angular.module('listview', ['ngAnimate'])
 
+// this is pretty much straight from ngRepeat.
 .factory('listViewParser', ['$parse', function($parse) {
 
   // jscs:disable maximumLineLength
@@ -164,10 +165,13 @@
    */
   this.toggleEditMode = function toggleEditMode() {
     editMode = !editMode;
+    
     $animate[(editMode)
       ? 'addClass'
       : 'removeClass'
     ](this.$element, 'list-view-edit');
+    
+    return editMode;
   };
 
   /**
@@ -273,6 +277,7 @@
   return {
     restrict: 'EA',
     controller: 'ListViewCtrl',
+    scope: true,
     compile: function($element, attrs) {
       var $contents = $element.contents();
       var $item;
@@ -341,7 +346,7 @@
           scope.$eval(handler, {$event: event, $toEditMode: toEditMode})
         ).then(function(toggle) {
           if (toggle === false) return;
-          ctrl.toggleEditMode();
+          scope.$editMode = ctrl.toggleEditMode();
         });
       });
     }

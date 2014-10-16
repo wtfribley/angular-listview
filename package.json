@@ -1,7 +1,7 @@
 {
   "name": "angular-listview",
   "version": "0.1.0",
-  "description": "simple, flexible, angular list view with ios-style edit/add header",
+  "description": "simple, flexible, angular list view -- select, add, edit, remove",
   "keywords": [
     "angular",
     "list",

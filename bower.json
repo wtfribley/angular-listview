@@ -4,7 +4,7 @@
   "authors": [
     "weston <me@westonfribley.com>"
   ],
-  "description": "simple, flexible, angular list view with ios-style edit/add header",
+  "description": "simple, flexible, angular list view -- select, add, edit, remove",
   "main": "listview.js",
   "keywords": [
     "angular",
