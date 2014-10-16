@@ -165,12 +165,12 @@
    */
   this.toggleEditMode = function toggleEditMode() {
     editMode = !editMode;
-    
+
     $animate[(editMode)
       ? 'addClass'
       : 'removeClass'
     ](this.$element, 'list-view-edit');
-    
+
     return editMode;
   };
 
@@ -312,7 +312,7 @@
 /**
  * @ngdoc directive
  * @name listEditToggle
- * @restrict A
+ * @restrict EA
  *
  * @description
  * Toggles the list into/out of edit mode -- i.e. toggled the "list-view-edit"
@@ -331,10 +331,10 @@
  */
 .directive('listEditToggle', ['$q', function($q) {
   return {
-    restrict: 'A',
+    restrict: 'EA',
     require: '^listView',
     link: function(scope, $element, attrs, ctrl) {
-      var handler = attrs.listEditToggle || true;
+      var handler = attrs.toggleIf || attrs.listEditToggle || true;
       var eventName = attrs.toggleOn || 'click';
 
       $element.on(eventName, function(event) {
@@ -356,7 +356,7 @@
 /**
  * @ngdoc directive
  * @name listAdd
- * @restrict A
+ * @restrict EA
  *
  * @description
  * Add a new item to the list.
@@ -372,10 +372,10 @@
  */
 .directive('listAdd', ['$q', function($q) {
   return {
-    restrict: 'A',
+    restrict: 'EA',
     require: '^listView',
     link: function(scope, $element, attrs, ctrl) {
-      var handler = attrs.listAdd;
+      var handler = attrs.add || attrs.listAdd;
       var eventName = attrs.addOn || 'click';
 
       // we can't do anything without a handler to return the new item.
@@ -402,7 +402,7 @@
 /**
  * @ngdoc directive
  * @name listItem
- * @restrict A
+ * @restrict EA
  *
  * @description
  * When creating a list, use `listItem` to define the item template which will
@@ -474,7 +474,7 @@
 /**
  * @ngdoc directive
  * @name listItemEdit
- * @restrict A
+ * @restrict EA
  *
  * @description
  * Edit a list item. Give an expression to `listItemEdit` which will alter the
@@ -485,10 +485,10 @@
  */
 .directive('listItemEdit', function() {
   return {
-    restrict: 'A',
+    restrict: 'EA',
     require: '^listView',
     link: function(scope, $element, attrs, ctrl) {
-      var handler = attrs.listItemEdit;
+      var handler = attrs.edit || attrs.listItemEdit;
       var eventName = attrs.editOn || 'click';
 
       // we can't do anything without a handler.
