@@ -42,6 +42,8 @@ Now you're ready to make lists on lists.
 </list-view>
 ```
 
+Here's a [JSFiddle](https://jsfiddle.net/qyvfns8a/) to mess with.  
+
 ### Classes
 
 `angular-listview` doesn't come with any CSS because I'm not presumptious like
