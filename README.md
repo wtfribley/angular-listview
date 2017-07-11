@@ -200,7 +200,7 @@ This module uses [Gulp](http://gulpjs.com/) to build:
 `$ gulp build`
 
 [Karma](http://karma-runner.github.io/) - using
-[Mocha](http://visionmedia.github.io/mocha/) and [Chai](http://chaijs.com/) - to
+[Mocha](http://mochajs.org/) and [Chai](http://chaijs.com/) - to
 test:
 
 `$ gulp test` or `$ npm test`
