@@ -5,7 +5,7 @@
     "weston <me@westonfribley.com>"
   ],
   "description": "simple, flexible, angular list view -- select, add, edit, remove",
-  "main": "listview.js",
+  "main": "angular-listview.js",
   "keywords": [
     "angular",
     "list",
